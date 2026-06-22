@@ -29,8 +29,8 @@ assistant to create or update the deck JSON from source material, then run
 Recommended sidecar convention:
 
 ```text
-docs/deliverables/monitoring-observability.json
-docs/deliverables/monitoring-observability.pptx
+presentations/quarterly-review.json
+presentations/quarterly-review.pptx
 ```
 
 The `.json` is the source of truth for future rebuilds. The `.pptx` is generated
@@ -56,8 +56,8 @@ Project example:
 ```bash
 cd /path/to/project
 node /path/to/corporate-pptx-deck/scripts/build-deck.js \
-  docs/deliverables/monitoring-observability.json \
-  docs/deliverables/monitoring-observability.pptx
+  presentations/quarterly-review.json \
+  presentations/quarterly-review.pptx
 ```
 
 ## Minimal Example
@@ -181,7 +181,7 @@ output filename passed on the command line, and the ledger is keyed by that
 filename (not by the deck JSON):
 
 ```bash
-node scripts/build-deck.js  deck.json  monitoring-observability.pptx
+node scripts/build-deck.js  deck.json  quarterly-review.pptx
 #                            ^ content   ^ ledger key
 ```
 

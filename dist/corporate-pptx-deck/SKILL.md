@@ -25,7 +25,7 @@ not convert `.md`, `.dokuwiki`, or existing `.pptx` files directly; create/updat
 the JSON first, then render.
 
 Prefer a sidecar source file next to the output, e.g.
-`docs/deliverables/name.json` -> `docs/deliverables/name.pptx`. Treat JSON as
+`presentations/name.json` -> `presentations/name.pptx`. Treat JSON as
 source of truth and PPTX as generated output.
 
 Run `scripts/build-deck.js` from the project root that owns `theme.local.json`,

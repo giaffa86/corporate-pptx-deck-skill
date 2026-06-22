@@ -125,13 +125,13 @@ command is launched:
 - project-local `theme.local.json`
 - output path
 
-For example, if your deck lives in `docs/deliverables`:
+For example, if your deck lives in `presentations`:
 
 ```bash
 cd /path/to/project
 node /path/to/corporate-pptx-deck/scripts/build-deck.js \
-  docs/deliverables/monitoring-observability.json \
-  docs/deliverables/monitoring-observability.pptx
+  presentations/quarterly-review.json \
+  presentations/quarterly-review.pptx
 ```
 
 Auto-versioning state, when enabled, is written as `.deck-versions.json` next to
@@ -148,8 +148,8 @@ Recommended convention: keep the deck JSON next to the PPTX with the same base
 name:
 
 ```text
-docs/deliverables/monitoring-observability.json
-docs/deliverables/monitoring-observability.pptx
+presentations/quarterly-review.json
+presentations/quarterly-review.pptx
 ```
 
 ```text
