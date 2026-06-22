@@ -1,0 +1,7 @@
+interface:
+  display_name: "Corporate PPTX Deck"
+  short_description: "Create editable branded PowerPoint decks"
+  brand_color: "#2563EB"
+  default_prompt: "Use $corporate-pptx-deck to create an editable corporate PowerPoint deck."
+policy:
+  allow_implicit_invocation: true

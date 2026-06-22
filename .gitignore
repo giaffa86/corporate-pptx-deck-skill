@@ -1,0 +1,15 @@
+node_modules/
+*.pptx
+!corporate-pptx-deck/examples/*.pptx
+*.pdf
+*.log
+.deck-versions.json
+.DS_Store
+.env
+.env.*
+theme.local.json
+**/theme.local.json
+**/assets/private/
+examples/output/
+coverage/
+.nyc_output/

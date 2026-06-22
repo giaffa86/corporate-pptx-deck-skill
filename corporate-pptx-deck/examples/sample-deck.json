@@ -1,0 +1,50 @@
+{
+  "title": "Project Update",
+  "subtitle": "Quarterly technical and business recap",
+  "date": "2026-06-22",
+  "version": "1.0.0",
+  "autoIncrement": false,
+  "author": "Jane Doe",
+  "coverImage": "",
+  "backgroundImage": "",
+  "backgroundOpacity": 0.08,
+  "watermark": "",
+  "watermarkColor": "111827",
+  "watermarkTransparency": 88,
+  "pageNumberFormat": "{{page}}/{{total}}",
+  "pageNumberColor": "9CA3AF",
+  "agendaEyebrow": "Agenda",
+  "agenda": [
+    { "time": "1", "speaker": "Context", "topic": "Why this work matters" },
+    { "time": "2", "speaker": "Progress", "topic": "What changed" },
+    { "time": "3", "speaker": "Risks", "topic": "What needs attention" }
+  ],
+  "sections": [
+    {
+      "type": "section",
+      "title": "Executive Summary",
+      "subtitle": "From activity to decisions",
+      "image": "",
+      "watermark": ""
+    },
+    {
+      "title": "Current State",
+      "eyebrow": "Progress",
+      "speaker": "Workstream A",
+      "image": "",
+      "bullets": [
+        "Milestone completed",
+        "Operational risk reduced",
+        "Next dependency identified"
+      ],
+      "callout": "Decision needed: approve next phase.",
+      "notes": "Use this slide to frame outcome, not only activity."
+    }
+  ],
+  "takeaways": [
+    "Outcome matters more than output.",
+    "Make decisions explicit.",
+    "Keep slides sparse and actionable."
+  ],
+  "takeawayCallout": "Next step: align on owners and dates."
+}

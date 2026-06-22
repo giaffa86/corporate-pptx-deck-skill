@@ -1,0 +1,23 @@
+{
+  "name": "corporate-pptx-deck-skill",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Codex skill for editable corporate PowerPoint decks with optional local branding",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:dist": "node install.js portable",
+    "validate": "test -f corporate-pptx-deck/SKILL.md && node --check corporate-pptx-deck/scripts/build-deck.js && node --check corporate-pptx-deck/scripts/init-theme.js && node --check install.js",
+    "sample": "node corporate-pptx-deck/scripts/build-deck.js corporate-pptx-deck/examples/sample-deck.json sample.pptx",
+    "install:codex": "node install.js codex",
+    "install:claude": "node install.js claude",
+    "install:opencode": "node install.js opencode",
+    "install:all": "node install.js all"
+  },
+  "dependencies": {
+    "pptxgenjs": "^4.0.0"
+  }
+}

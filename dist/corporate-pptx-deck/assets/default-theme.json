@@ -1,0 +1,31 @@
+{
+  "companyName": "",
+  "author": "",
+  "logo": "",
+  "footer": "",
+  "confidentiality": "",
+  "backgroundImage": "",
+  "backgroundOpacity": 0.08,
+  "watermark": "",
+  "watermarkColor": "111827",
+  "watermarkTransparency": 88,
+  "pageNumberFormat": "",
+  "pageNumberColor": "9CA3AF",
+  "colors": {
+    "ink": "111827",
+    "muted": "6B7280",
+    "softBg": "F9FAFB",
+    "whiteBg": "FFFFFF",
+    "darkBg": "111827",
+    "line": "E5E7EB",
+    "accent": "2563EB",
+    "accent2": "10B981",
+    "danger": "B91C1C",
+    "amber": "D97706",
+    "white": "FFFFFF"
+  },
+  "fonts": {
+    "head": "Aptos Display",
+    "body": "Aptos"
+  }
+}
