@@ -11,19 +11,11 @@ Planned improvements for the `corporate-pptx-deck` skill, in suggested order.
   - `--no-bump` for verification rebuilds
   - Hardcoded footer/section/callout colors moved into theme
   - `rg` replaced with `grep` in `SKILL.md`
-
-## Block 2 — Visual verification in the workflow
-
-Goal: the agent sees the rendered slides and fixes problems before handing off.
-
-- [ ] Add a render step to `SKILL.md`:
-  ```bash
-  soffice --headless --convert-to pdf --outdir /tmp/check out.pptx
-  pdftoppm -png -r 50 /tmp/check/out.pdf /tmp/check/slide
-  ```
-- [ ] Instruct the agent to inspect PNGs for overflow, overlap, contrast, empty slides, then patch the JSON and rebuild with `--no-bump`
-- [ ] Optional `scripts/render-check.js` wrapping both commands, with graceful skip when LibreOffice or poppler is missing
-- [ ] Document the fallback when no renderer is available (slide count + lint only)
+- [x] **Block 2 — Visual verification in the workflow**
+  - `scripts/render-check.js`: PPTX → PDF → one PNG per slide, isolated LibreOffice profile, graceful skip without LibreOffice/poppler
+  - `SKILL.md` visual check loop: inspect PNGs, fix JSON, rebuild with `--no-bump`, re-render
+  - Inspection checklist (overflow, overlap, contrast, empty slides) and no-renderer fallback
+  - `npm run check:sample`
 
 ## Block 3 — Lint and schema validation
 

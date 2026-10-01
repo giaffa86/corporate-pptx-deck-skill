@@ -29,8 +29,27 @@ For the JSON fields that create these slides, see `deck-data.md`.
 
 ## Verification
 
-Prefer checking a PDF render:
+Render every slide to PNG and inspect it:
 
 ```bash
-libreoffice --headless --convert-to pdf --outdir /tmp/check output.pptx
+node corporate-pptx-deck/scripts/render-check.js output.pptx /tmp/check
 ```
+
+Under the hood this runs:
+
+```bash
+soffice --headless --convert-to pdf --outdir /tmp/check output.pptx
+pdftoppm -png -r 50 /tmp/check/output.pdf /tmp/check/slide
+```
+
+Inspect every PNG and look for:
+
+- text overflowing its box or cut off at the bottom (`fit: "shrink"` does not
+  shrink text at render time, so long text really overflows)
+- overlapping elements (title over speaker line, callout over bullets, image over text)
+- low contrast (text on background image, light text on light background)
+- empty or near-empty slides, missing images, wrong slide order
+- footer, page number, and watermark readable but not dominant
+
+Fix issues in the deck JSON and rebuild with `--no-bump`. Without LibreOffice or
+poppler, the script skips rendering; rely on the slide count and content rules.

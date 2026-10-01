@@ -16,10 +16,12 @@ description: Create editable corporate PowerPoint decks using PptxGenJS with an 
    - fallback to `assets/default-theme.json`
 3. For first-time setup, run `scripts/init-theme.js`.
 4. Create deck data JSON, then run `scripts/build-deck.js`.
-5. Verify generated deck:
-   - count slides with `unzip -l deck.pptx | grep -cE 'ppt/slides/slide[0-9]+\.xml$'`
+5. Verify the generated deck (see "Visual Check" below):
    - read stderr: `Warning: image not found, skipped: ...` means a broken image path
-   - if LibreOffice exists, convert to PDF for render inspection.
+   - render with `node corporate-pptx-deck/scripts/render-check.js deck.pptx`
+   - look at every PNG, fix the deck JSON, rebuild with `--no-bump`, re-render
+   - repeat until clean, then do one final build without `--no-bump` if the deck
+     auto-versions
 
 `scripts/init-theme.js` is interactive when a TTY is available. `scripts/build-deck.js` is non-interactive: pass `deck.json output.pptx`; it reads JSON, resolves theme, writes PPTX.
 Options: `--theme theme.json` (explicit user theme), `--no-bump` (rebuild without
@@ -66,6 +68,36 @@ For global `pptxgenjs`, use:
 ```bash
 NODE_PATH=$(npm root -g) node corporate-pptx-deck/scripts/build-deck.js deck.json output.pptx
 ```
+
+## Visual Check
+
+`scripts/render-check.js deck.pptx [outDir] [--dpi 50]` converts the PPTX to PDF
+with LibreOffice and to one PNG per slide with `pdftoppm`. It prints the slide
+count and the PNG paths (default `outDir`: `$TMPDIR/deck-check-<name>`), and
+warns when rendered pages and slides differ. It uses an isolated LibreOffice
+profile, so a running LibreOffice does not block it.
+
+Inspect every PNG and look for:
+
+- text overflowing its box or cut off at the bottom (`fit: "shrink"` does not
+  shrink text at render time, so long text really overflows)
+- overlapping elements (title over speaker line, callout over bullets, image over text)
+- low contrast (text on background image, light text on light background)
+- empty or near-empty slides, missing images, wrong slide order
+- footer, page number, and watermark readable but not dominant
+
+Fix problems in the deck JSON, not in the PPTX: shorten bullets or titles, split
+a dense slide in two, move detail to `notes`, lower `fontSize`, change or drop an
+image, reduce `backgroundOpacity`. Rebuild with `--no-bump` while iterating so
+verification rebuilds do not advance the version.
+
+If LibreOffice or `pdftoppm` is missing, the script prints
+`Warning: render skipped, ...` and exits 0. Then fall back to the slide count
+(`unzip -l deck.pptx | grep -cE 'ppt/slides/slide[0-9]+\.xml$'`) and the content
+rules in Design Rules, and tell the user the deck was not visually checked.
+
+LibreOffice rendering is close to PowerPoint but not identical (fonts may be
+substituted). Treat it as a check for layout problems, not pixel-exact output.
 
 ## Data Model
 

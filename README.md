@@ -208,17 +208,24 @@ Quick rules:
 
 ## Verify Output
 
-Count slides:
+Render to PDF and one PNG per slide for visual inspection (needs LibreOffice and
+poppler `pdftoppm`; skips with a warning when either is missing):
 
 ```bash
-unzip -l output.pptx | rg 'ppt/slides/slide[0-9]+\.xml' | wc -l
+node corporate-pptx-deck/scripts/render-check.js output.pptx /tmp/pptx-check
 ```
 
-Optional PDF render check:
+Options: second argument is the output folder (default `$TMPDIR/deck-check-<name>`),
+`--dpi N` sets PNG resolution (default 50).
+
+Count slides without rendering:
 
 ```bash
-libreoffice --headless --convert-to pdf --outdir /tmp/pptx-check output.pptx
+unzip -l output.pptx | grep -cE 'ppt/slides/slide[0-9]+\.xml$'
 ```
+
+While fixing layout issues, rebuild with `--no-bump` so verification builds do
+not advance the auto-version.
 
 ## Repository Layout
 
@@ -233,6 +240,7 @@ corporate-pptx-deck/
   references/theme-schema.md
   scripts/build-deck.js
   scripts/init-theme.js
+  scripts/render-check.js
   scripts/theme-paths.js
 install.js
 INSTALL.md
