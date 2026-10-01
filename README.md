@@ -122,6 +122,15 @@ Arguments:
 - second argument: output `.pptx`; defaults to `output.pptx` when omitted
 - `--theme path/to/theme.json`: use this user theme instead of the default lookup
 - `--no-bump`: rebuild without advancing the auto-version ledger
+- `--strict`: do not write the PPTX when lint reports warnings
+
+Every build lints the deck JSON against `references/deck.schema.json` and the
+content limits (bullets per slide, text lengths, agenda size) and prints
+`Lint: <path>: <message>` lines to stderr. Run the lint alone with:
+
+```bash
+node corporate-pptx-deck/scripts/lint-deck.js deck.json [--strict]
+```
 
 Run the command from the project root that owns the deck, theme, and deliverable
 paths. `build-deck.js` resolves these from the directory where the command is
@@ -237,9 +246,11 @@ corporate-pptx-deck/
   examples/sample-deck.json
   references/deck-data.md
   references/deck-patterns.md
+  references/deck.schema.json
   references/theme-schema.md
   scripts/build-deck.js
   scripts/init-theme.js
+  scripts/lint-deck.js
   scripts/render-check.js
   scripts/theme-paths.js
 install.js

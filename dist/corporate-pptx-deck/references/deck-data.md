@@ -39,6 +39,26 @@ output.
 Use `init-theme.js` only for interactive local branding setup. Use
 `build-deck.js` for repeatable deck rendering.
 
+## Validation
+
+Every build lints the deck against `deck.schema.json` and the content limits
+below, printing `Lint: <path>: <message>` lines to stderr. Warnings do not stop
+the build unless `--strict` is passed. Standalone:
+
+```bash
+node corporate-pptx-deck/scripts/lint-deck.js presentations/quarterly-review.json --strict
+```
+
+Editors that support JSON Schema can validate while editing with:
+
+```json
+{ "$schema": "../path/to/corporate-pptx-deck/references/deck.schema.json" }
+```
+
+Content limits checked by lint: 5 bullets per slide, 90 chars per bullet, 60
+chars per slide title (70 for the cover), 120 chars for the cover subtitle, 140
+chars per callout, 10 agenda items, 5 takeaways, 11pt minimum `fontSize`.
+
 ## Where To Run It
 
 Run `build-deck.js` from the project root that owns the deck, local theme, and

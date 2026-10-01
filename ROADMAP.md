@@ -16,21 +16,11 @@ Planned improvements for the `corporate-pptx-deck` skill, in suggested order.
   - `SKILL.md` visual check loop: inspect PNGs, fix JSON, rebuild with `--no-bump`, re-render
   - Inspection checklist (overflow, overlap, contrast, empty slides) and no-renderer fallback
   - `npm run check:sample`
-
-## Block 3 — Lint and schema validation
-
-Goal: catch content problems before rendering. `fit: "shrink"` only sets `normAutofit`;
-PowerPoint recalculates on edit and LibreOffice ignores it, so long text overflows.
-
-- [ ] `build-deck.js --lint` (or `scripts/lint-deck.js`) with warnings for:
-  - more than 5 bullets on a slide
-  - bullets longer than ~90 characters
-  - titles longer than ~60 characters
-  - agenda with more than ~10 items
-  - callout longer than ~140 characters
-  - unknown fields (likely typos)
-- [ ] `references/deck.schema.json` (JSON Schema) for deck validation
-- [ ] Optional `--strict` that turns lint warnings into a non-zero exit
+- [x] **Block 3 — Lint and schema validation**
+  - `references/deck.schema.json` (JSON Schema 2020-12) for every deck field
+  - `scripts/lint-deck.js`: schema check with "did you mean" hints plus content limits (bullets, text lengths, agenda, takeaways, font size, empty slides)
+  - Lint runs on every `build-deck.js` build; `--strict` blocks writing the PPTX
+  - Sample deck linted in `npm run validate`
 
 ## Block 4 — More slide types
 

@@ -16,8 +16,9 @@ description: Create editable corporate PowerPoint decks using PptxGenJS with an 
    - fallback to `assets/default-theme.json`
 3. For first-time setup, run `scripts/init-theme.js`.
 4. Create deck data JSON, then run `scripts/build-deck.js`.
-5. Verify the generated deck (see "Visual Check" below):
-   - read stderr: `Warning: image not found, skipped: ...` means a broken image path
+5. Verify the generated deck (see "Lint" and "Visual Check" below):
+   - read stderr: fix every `Lint: ...` line in the deck JSON
+   - `Warning: image not found, skipped: ...` means a broken image path
    - render with `node corporate-pptx-deck/scripts/render-check.js deck.pptx`
    - look at every PNG, fix the deck JSON, rebuild with `--no-bump`, re-render
    - repeat until clean, then do one final build without `--no-bump` if the deck
@@ -25,7 +26,8 @@ description: Create editable corporate PowerPoint decks using PptxGenJS with an 
 
 `scripts/init-theme.js` is interactive when a TTY is available. `scripts/build-deck.js` is non-interactive: pass `deck.json output.pptx`; it reads JSON, resolves theme, writes PPTX.
 Options: `--theme theme.json` (explicit user theme), `--no-bump` (rebuild without
-advancing the auto-version ledger; use it for verification rebuilds).
+advancing the auto-version ledger; use it for verification rebuilds), `--strict`
+(do not write the PPTX when lint reports warnings).
 
 The deck JSON must exist before running `scripts/build-deck.js`. The script does
 not convert `.md`, `.dokuwiki`, or existing `.pptx` files directly; create/update
@@ -69,6 +71,21 @@ For global `pptxgenjs`, use:
 NODE_PATH=$(npm root -g) node corporate-pptx-deck/scripts/build-deck.js deck.json output.pptx
 ```
 
+## Lint
+
+`build-deck.js` lints the deck JSON on every build and prints `Lint: <path>: <message>`
+to stderr. Run it alone with `node corporate-pptx-deck/scripts/lint-deck.js deck.json [--strict]`.
+
+It checks the JSON against `references/deck.schema.json` (unknown fields with
+"did you mean" hints, wrong types, colors with `#`, out-of-range opacity or
+transparency) and flags content likely to overflow: more than 5 bullets,
+bullets over 90 chars, titles over 60 chars (cover 70), callouts over 140 chars,
+more than 10 agenda items or 5 takeaways, font size under 11pt, near-empty
+topic slides, and bullets/callouts on section dividers (ignored there).
+
+Lint does not replace the visual check: it catches likely problems, the render
+confirms them.
+
 ## Visual Check
 
 `scripts/render-check.js deck.pptx [outDir] [--dpi 50]` converts the PPTX to PDF
@@ -108,5 +125,6 @@ Read `references/deck-data.md` for the full deck JSON contract, including metada
 ## References
 
 - Deck data fields: `references/deck-data.md`
+- Deck JSON Schema: `references/deck.schema.json`
 - Theme fields: `references/theme-schema.md`
 - Deck patterns: `references/deck-patterns.md`

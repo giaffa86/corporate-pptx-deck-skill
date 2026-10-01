@@ -6,6 +6,7 @@ Read SKILL.md first. Then use:
 
 - scripts/init-theme.js for optional local theme setup
 - scripts/build-deck.js for PptxGenJS deck generation
+- scripts/lint-deck.js to validate deck JSON (also runs on every build)
 - scripts/render-check.js to render slides to PNG for visual inspection
 - references/theme-schema.md for theme config
 - references/deck-patterns.md for deck structure

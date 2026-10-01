@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "corporate-pptx-deck/deck.schema.json",
+  "title": "Corporate PPTX deck",
+  "description": "Deck data consumed by scripts/build-deck.js. See references/deck-data.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "title": { "type": "string" },
+    "subtitle": { "type": "string" },
+    "date": { "type": "string" },
+    "version": { "type": ["string", "number"] },
+    "autoIncrement": { "type": "boolean" },
+    "author": { "type": "string" },
+    "lang": { "type": "string", "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]+)*$" },
+    "labels": { "$ref": "#/$defs/labels" },
+    "label": { "type": "string" },
+    "footer": { "type": "string" },
+    "notes": { "type": "string" },
+    "coverImage": { "type": "string" },
+    "backgroundImage": { "type": "string" },
+    "backgroundOpacity": { "$ref": "#/$defs/opacity" },
+    "watermark": { "type": "string" },
+    "watermarkColor": { "$ref": "#/$defs/color" },
+    "watermarkTransparency": { "$ref": "#/$defs/transparency" },
+    "pageNumberFormat": { "$ref": "#/$defs/pageNumberFormat" },
+    "pageNumberColor": { "$ref": "#/$defs/color" },
+
+    "agendaTitle": { "type": "string" },
+    "agendaEyebrow": { "type": "string" },
+    "agenda": { "type": "array", "items": { "$ref": "#/$defs/agendaItem" } },
+    "agendaBackgroundImage": { "type": "string" },
+    "agendaBackgroundOpacity": { "$ref": "#/$defs/opacity" },
+    "agendaWatermark": { "type": "string" },
+    "agendaWatermarkColor": { "$ref": "#/$defs/color" },
+    "agendaWatermarkTransparency": { "$ref": "#/$defs/transparency" },
+    "agendaPageNumberFormat": { "$ref": "#/$defs/pageNumberFormat" },
+    "agendaPageNumberColor": { "$ref": "#/$defs/color" },
+
+    "sections": { "type": "array", "items": { "$ref": "#/$defs/slide" } },
+
+    "takeawayTitle": { "type": "string" },
+    "takeawayEyebrow": { "type": "string" },
+    "takeaways": { "type": "array", "items": { "type": "string" } },
+    "takeawayCallout": { "type": "string" },
+    "takeawayImage": { "type": "string" },
+    "takeawayBackgroundImage": { "type": "string" },
+    "takeawayBackgroundOpacity": { "$ref": "#/$defs/opacity" },
+    "takeawayWatermark": { "type": "string" },
+    "takeawayWatermarkColor": { "$ref": "#/$defs/color" },
+    "takeawayWatermarkTransparency": { "$ref": "#/$defs/transparency" },
+    "takeawayPageNumberFormat": { "$ref": "#/$defs/pageNumberFormat" },
+    "takeawayPageNumberColor": { "$ref": "#/$defs/color" }
+  },
+  "$defs": {
+    "color": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{6}$",
+      "description": "Hex color without #."
+    },
+    "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "transparency": { "type": "number", "minimum": 0, "maximum": 100 },
+    "pageNumberFormat": {
+      "type": ["string", "boolean"],
+      "description": "Footer page number format with {{page}} and {{total}} tokens; true means {{page}}."
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cover": { "type": "string" },
+        "agenda": { "type": "string" },
+        "section": { "type": "string" },
+        "takeaways": { "type": "string" },
+        "takeawayEyebrow": { "type": "string" }
+      }
+    },
+    "agendaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time": { "type": "string" },
+        "speaker": { "type": "string" },
+        "title": { "type": "string" },
+        "topic": { "type": "string" }
+      }
+    },
+    "slide": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["section", "topic"] },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "eyebrow": { "type": "string" },
+        "speaker": { "type": "string" },
+        "section": { "type": "string" },
+        "bullets": { "type": "array", "items": { "type": "string" } },
+        "callout": { "type": "string" },
+        "image": { "type": "string" },
+        "accent": { "$ref": "#/$defs/color" },
+        "fontSize": { "type": "number", "minimum": 8, "maximum": 40 },
+        "notes": { "type": "string" },
+        "backgroundImage": { "type": "string" },
+        "backgroundOpacity": { "$ref": "#/$defs/opacity" },
+        "watermark": { "type": "string" },
+        "watermarkColor": { "$ref": "#/$defs/color" },
+        "watermarkTransparency": { "$ref": "#/$defs/transparency" },
+        "pageNumberFormat": { "$ref": "#/$defs/pageNumberFormat" },
+        "pageNumberColor": { "$ref": "#/$defs/color" }
+      }
+    }
+  }
+}

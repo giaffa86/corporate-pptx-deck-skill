@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build:dist": "node install.js portable",
-    "validate": "test -f corporate-pptx-deck/SKILL.md && node --check corporate-pptx-deck/scripts/build-deck.js && node --check corporate-pptx-deck/scripts/init-theme.js && node --check corporate-pptx-deck/scripts/theme-paths.js && node --check corporate-pptx-deck/scripts/render-check.js && node --check install.js",
+    "validate": "test -f corporate-pptx-deck/SKILL.md && node --check corporate-pptx-deck/scripts/build-deck.js && node --check corporate-pptx-deck/scripts/init-theme.js && node --check corporate-pptx-deck/scripts/theme-paths.js && node --check corporate-pptx-deck/scripts/render-check.js && node --check corporate-pptx-deck/scripts/lint-deck.js && node corporate-pptx-deck/scripts/lint-deck.js corporate-pptx-deck/examples/sample-deck.json --strict && node --check install.js",
     "sample": "node corporate-pptx-deck/scripts/build-deck.js corporate-pptx-deck/examples/sample-deck.json sample.pptx",
     "check:sample": "npm run -s sample && node corporate-pptx-deck/scripts/render-check.js sample.pptx",
     "install:codex": "node install.js codex",

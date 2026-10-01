@@ -3,14 +3,17 @@ const fs = require("fs");
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 const { findUserTheme } = require("./theme-paths");
+const { lintDeck, printWarnings } = require("./lint-deck");
 
-const USAGE = "Usage: node build-deck.js deck.json output.pptx [--theme theme.json] [--no-bump]";
+const USAGE = "Usage: node build-deck.js deck.json output.pptx [--theme theme.json] [--no-bump] [--strict]";
 const positional = [];
 let themeArg = null;
 let noBump = false;
+let strict = false;
 for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
   if (arg === "--no-bump") noBump = true;
+  else if (arg === "--strict") strict = true;
   else if (arg === "--theme") themeArg = process.argv[++i];
   else if (arg.startsWith("--theme=")) themeArg = arg.slice("--theme=".length);
   else if (arg === "-h" || arg === "--help") { console.log(USAGE); process.exit(0); }
@@ -40,6 +43,13 @@ try {
 } catch (err) {
   console.error(`Invalid deck JSON: ${inputAbs}`);
   console.error(err.message);
+  process.exit(1);
+}
+
+const lintWarnings = lintDeck(deck);
+printWarnings(lintWarnings);
+if (strict && lintWarnings.length) {
+  console.error(`${lintWarnings.length} lint warning(s); --strict set, PPTX not written.`);
   process.exit(1);
 }
 
