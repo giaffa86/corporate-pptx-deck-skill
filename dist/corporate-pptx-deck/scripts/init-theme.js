@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const readline = require("readline");
 const { execFileSync } = require("child_process");
+const { defaultUserThemeTarget } = require("./theme-paths");
 
 const skillDir = path.resolve(__dirname, "..");
 const defaultTheme = JSON.parse(fs.readFileSync(path.join(skillDir, "assets", "default-theme.json"), "utf8"));
@@ -288,7 +288,7 @@ async function plainPrompts(theme) {
 
 // ---------- main ----------
 async function main() {
-  const target = process.argv[2] || path.join(os.homedir(), ".codex", "corporate-pptx-deck", "theme.json");
+  const target = process.argv[2] || defaultUserThemeTarget();
   // base = factory defaults; if an existing theme is present at target, overlay it
   // so the prompts pre-fill with previously saved values (new fields still inherit defaults).
   const theme = structuredClone(defaultTheme);

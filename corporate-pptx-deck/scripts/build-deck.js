@@ -1,13 +1,26 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const pptxgen = require("pptxgenjs");
+const { findUserTheme } = require("./theme-paths");
 
-const input = process.argv[2];
-const output = process.argv[3] || "output.pptx";
-if (!input) {
-  console.error("Usage: node build-deck.js deck.json output.pptx");
+const USAGE = "Usage: node build-deck.js deck.json output.pptx [--theme theme.json] [--no-bump]";
+const positional = [];
+let themeArg = null;
+let noBump = false;
+for (let i = 2; i < process.argv.length; i++) {
+  const arg = process.argv[i];
+  if (arg === "--no-bump") noBump = true;
+  else if (arg === "--theme") themeArg = process.argv[++i];
+  else if (arg.startsWith("--theme=")) themeArg = arg.slice("--theme=".length);
+  else if (arg === "-h" || arg === "--help") { console.log(USAGE); process.exit(0); }
+  else if (arg.startsWith("--")) { console.error(`Unknown option: ${arg}\n${USAGE}`); process.exit(1); }
+  else positional.push(arg);
+}
+const input = positional[0];
+const output = positional[1] || "output.pptx";
+if (!input || (process.argv.includes("--theme") && !themeArg)) {
+  console.error(USAGE);
   process.exit(1);
 }
 
@@ -45,7 +58,12 @@ function deepMerge(base, override) {
 }
 
 const defaultTheme = readJsonIfExists(path.join(skillDir, "assets", "default-theme.json"));
-const userTheme = readJsonIfExists(path.join(os.homedir(), ".codex", "corporate-pptx-deck", "theme.json"));
+const userThemePath = findUserTheme(themeArg);
+if (themeArg && !fs.existsSync(userThemePath)) {
+  console.error(`Theme not found: ${userThemePath}`);
+  process.exit(1);
+}
+const userTheme = userThemePath ? readJsonIfExists(userThemePath) : null;
 const localTheme = readJsonIfExists(path.resolve(cwd, "theme.local.json"));
 const theme = deepMerge(deepMerge(defaultTheme, userTheme), localTheme);
 const C = theme.colors;
@@ -76,6 +94,7 @@ function resolveVersion() {
   const key = path.basename(outputAbs);
   let ledger = {};
   try { ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8")); } catch { /* none yet */ }
+  if (noBump) return ledger[key] || explicit || "0.0.1";
   const next = ledger[key] ? bumpVersion(ledger[key]) : (explicit || "0.0.1");
   ledger[key] = next;
   try { fs.writeFileSync(ledgerPath, `${JSON.stringify(ledger, null, 2)}\n`); } catch { /* read-only dir */ }
@@ -83,6 +102,18 @@ function resolveVersion() {
 }
 
 const version = resolveVersion();
+
+// Fixed slide strings: deck.labels > theme.labels > defaults for deck.lang.
+const lang = deck.lang || "it-IT";
+const DEFAULT_LABELS = {
+  it: { cover: "DOCUMENTO", agenda: "Agenda", section: "Sezione", takeaways: "Takeaways", takeawayEyebrow: "Sintesi" },
+  en: { cover: "DOCUMENT", agenda: "Agenda", section: "Section", takeaways: "Takeaways", takeawayEyebrow: "Summary" },
+};
+const L = {
+  ...(DEFAULT_LABELS[lang.slice(0, 2).toLowerCase()] || DEFAULT_LABELS.en),
+  ...(theme.labels || {}),
+  ...(deck.labels || {}),
+};
 const author = deck.author || theme.author || ""; // shown on cover; no companyName fallback
 const totalSlides = 1
   + (deck.agenda?.length ? 1 : 0)
@@ -98,16 +129,26 @@ pptx.revision = version;
 pptx.company = theme.companyName || "";
 pptx.subject = deck.subtitle || "";
 pptx.title = deck.title || "Corporate Deck";
-pptx.lang = deck.lang || "it-IT";
+pptx.lang = lang;
 pptx.theme = {
   headFontFace: theme.fonts.head,
   bodyFontFace: theme.fonts.body,
-  lang: deck.lang || "it-IT",
+  lang,
 };
 
+// Relative paths resolve from the deck JSON folder first, then the working directory.
+const deckDir = path.dirname(inputAbs);
+const warnedAssets = new Set();
 function asset(p) {
   if (!p) return null;
-  return path.isAbsolute(p) ? p : path.resolve(cwd, p);
+  const candidates = path.isAbsolute(p) ? [p] : [path.resolve(deckDir, p), path.resolve(cwd, p)];
+  const found = candidates.find((c) => fs.existsSync(c));
+  if (found) return found;
+  if (!warnedAssets.has(p)) {
+    warnedAssets.add(p);
+    console.warn(`Warning: image not found, skipped: ${p}`);
+  }
+  return null;
 }
 
 function hasOwn(obj, key) {
@@ -142,7 +183,7 @@ function opacityToTransparency(value, fallbackOpacity) {
 function addBackgroundImage(slide, scope = {}) {
   const image = resolveVisual(scope, "backgroundImage");
   const img = asset(image);
-  if (!img || !fs.existsSync(img)) return;
+  if (!img) return;
   const transparency = opacityToTransparency(resolveVisual(scope, "backgroundOpacity"), 0.08);
   slide.addImage({
     path: img,
@@ -197,14 +238,14 @@ function addTopBar(slide) {
 
 function addFooter(slide, section = "", scope = {}) {
   slide.addShape(pptx.ShapeType.line, { x: 0.55, y: 7.05, w: 10.8, h: 0, line: { color: C.line, width: 1 } });
-  slide.addText(section, { x: 0.55, y: 7.15, w: 6.5, h: 0.16, fontSize: 7.8, color: "9CA3AF", margin: 0 });
+  slide.addText(section, { x: 0.55, y: 7.15, w: 6.5, h: 0.16, fontSize: 7.8, color: C.footerText, margin: 0 });
   const right = [theme.companyName, theme.confidentiality || theme.footer].filter(Boolean).join(" · ");
-  slide.addText(right, { x: 8.2, y: 7.15, w: 3.55, h: 0.16, fontSize: 7.8, color: "9CA3AF", align: "right", margin: 0 });
+  slide.addText(right, { x: 8.2, y: 7.15, w: 3.55, h: 0.16, fontSize: 7.8, color: C.footerText, align: "right", margin: 0 });
   const pageNumber = formatPageNumber(resolvePageNumberFormat(scope));
   if (pageNumber) {
     slide.addText(pageNumber, {
       x: 11.95, y: 7.15, w: 0.85, h: 0.16,
-      fontSize: 7.8, color: resolveVisual(scope, "pageNumberColor") || "9CA3AF",
+      fontSize: 7.8, color: resolveVisual(scope, "pageNumberColor") || C.footerText,
       align: "right", margin: 0, fit: "shrink",
     });
   }
@@ -234,7 +275,7 @@ function imageSize(file) {
 // Fit the logo inside a maxW x maxH box preserving its real aspect ratio (no stretch).
 function addLogo(slide, x = 0.75, y = 0.55, maxW = 1.8, maxH = 0.55) {
   const logo = asset(theme.logo);
-  if (!(logo && fs.existsSync(logo))) return;
+  if (!logo) return;
   let w = maxW, h = maxH;
   const sz = imageSize(logo);
   if (sz && sz.w && sz.h) {
@@ -271,7 +312,7 @@ function addCallout(slide, text, x, y, w, h, color = C.accent) {
   if (!text) return;
   slide.addShape(pptx.ShapeType.roundRect, {
     x, y, w, h, rectRadius: 0.08,
-    fill: { color: "FFFFFF" },
+    fill: { color: C.calloutBg },
     line: { color, width: 1.2 },
   });
   slide.addText(text, {
@@ -282,7 +323,7 @@ function addCallout(slide, text, x, y, w, h, color = C.accent) {
 
 function addImageFrame(slide, image, x, y, w, h, line = C.line) {
   const img = asset(image);
-  if (!img || !fs.existsSync(img)) return;
+  if (!img) return;
   slide.addShape(pptx.ShapeType.roundRect, {
     x: x - 0.03, y: y - 0.03, w: w + 0.06, h: h + 0.06,
     rectRadius: 0.06, fill: { color: C.white }, line: { color: line, width: 0.8 },
@@ -297,7 +338,7 @@ function cover() {
   addBackgroundImage(slide);
   addTopBar(slide);
   addLogo(slide);
-  slide.addText(deck.label || "DOCUMENTO", {
+  slide.addText(deck.label || L.cover, {
     x: 0.8, y: 1.8, w: 3.8, h: 0.22, fontSize: 9,
     bold: true, color: C.accent, charSpace: 1.5, margin: 0,
   });
@@ -336,8 +377,8 @@ function agenda() {
   slide.background = { color: C.whiteBg };
   addBackgroundImage(slide, agendaVisuals);
   addTopBar(slide);
-  addTitle(slide, "Agenda", deck.agendaEyebrow || "Agenda");
-  addFooter(slide, "Agenda", agendaVisuals);
+  addTitle(slide, deck.agendaTitle || L.agenda, deck.agendaEyebrow || L.agenda);
+  addFooter(slide, L.agenda, agendaVisuals);
   const midpoint = Math.ceil(deck.agenda.length / 2);
   const render = (items, x) => {
     slide.addText(items.map((it) => ({
@@ -361,9 +402,9 @@ function sectionSlide(s) {
   slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: SLIDE_W, h: 0.1, fill: { color: C.accent2 }, line: { color: C.accent2 } });
   slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 5.2, h: 0.1, fill: { color: C.accent }, line: { color: C.accent } });
   slide.addText(s.title, { x: 0.8, y: 1.0, w: 5.8, h: 0.95, fontSize: 34, bold: true, color: C.white, margin: 0, fit: "shrink" });
-  slide.addText(s.subtitle || "", { x: 0.82, y: 2.15, w: 5.3, h: 0.8, fontSize: 15, color: "D1D5DB", margin: 0, fit: "shrink" });
+  slide.addText(s.subtitle || "", { x: 0.82, y: 2.15, w: 5.3, h: 0.8, fontSize: 15, color: C.sectionSubtitle, margin: 0, fit: "shrink" });
   addImageFrame(slide, s.image, 7.0, 1.0, 5.4, 4.2, C.accent2);
-  addFooter(slide, "Sezione", s);
+  addFooter(slide, L.section, s);
   addWatermark(slide, s);
   if (s.notes) slide.addNotes(s.notes);
 }
@@ -392,12 +433,12 @@ for (const section of deck.sections || []) {
 }
 if (deck.takeaways?.length) {
   topicSlide({
-    title: deck.takeawayTitle || "Takeaways",
-    eyebrow: "Sintesi",
+    title: deck.takeawayTitle || L.takeaways,
+    eyebrow: deck.takeawayEyebrow || L.takeawayEyebrow,
     bullets: deck.takeaways,
     callout: deck.takeawayCallout,
     image: deck.takeawayImage,
-    section: "Takeaways",
+    section: L.takeaways,
     ...definedFields({
       backgroundImage: deck.takeawayBackgroundImage,
       backgroundOpacity: deck.takeawayBackgroundOpacity,

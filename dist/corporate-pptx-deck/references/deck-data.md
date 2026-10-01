@@ -45,7 +45,8 @@ Run `build-deck.js` from the project root that owns the deck, local theme, and
 image paths. The current working directory matters:
 
 - input deck JSON paths are resolved from the current working directory
-- relative image paths in the deck JSON are resolved from the current working directory
+- relative image paths in the deck JSON are resolved from the deck JSON folder
+  first, then from the current working directory
 - `theme.local.json` is searched in the current working directory
 - output PPTX paths are resolved from the current working directory
 - `.deck-versions.json`, when auto-versioning is enabled, is written next to the
@@ -114,8 +115,12 @@ node /path/to/corporate-pptx-deck/scripts/build-deck.js \
   build via the local ledger; `version` (if present) seeds the first build.
 - `author`: cover metadata and PPTX author. If omitted, `theme.author` is used
   when present; the company name is only used for PPTX metadata fallback.
-- `lang`: PPTX language. Defaults to `it-IT`.
-- `label`: small cover label. Defaults to `DOCUMENTO`.
+- `lang`: PPTX language. Defaults to `it-IT`. Also picks default slide strings:
+  `it-*` → Italian, anything else → English.
+- `labels`: optional overrides for fixed slide strings: `cover`, `agenda`,
+  `section`, `takeaways`, `takeawayEyebrow`. Deck `labels` > theme `labels` >
+  `lang` defaults.
+- `label`: small cover label. Defaults to `labels.cover` (`DOCUMENTO` / `DOCUMENT`).
 - `coverImage`: optional image path for the cover visual.
 - `backgroundImage`: optional deck-wide full-slide background image.
 - `backgroundOpacity`: optional `0` to `1` background image opacity. Defaults
@@ -129,7 +134,8 @@ node /path/to/corporate-pptx-deck/scripts/build-deck.js \
   `{{page}}/{{total}}`.
 - `pageNumberColor`: optional page number color without `#`.
 - `notes`: optional speaker notes on the cover slide.
-- `agendaEyebrow`: small label above the agenda title. Defaults to `Agenda`.
+- `agendaTitle`, `agendaEyebrow`: agenda slide title and small label above it.
+  Both default to `labels.agenda` (`Agenda`).
 - `agenda`: optional array. If empty or omitted, no agenda slide is generated.
 - `agendaBackgroundImage`, `agendaBackgroundOpacity`, `agendaWatermark`,
   `agendaWatermarkColor`, `agendaWatermarkTransparency`,
@@ -139,7 +145,9 @@ node /path/to/corporate-pptx-deck/scripts/build-deck.js \
 - `takeaways`: optional bullet array. If present, a final takeaways slide is
   generated.
 - `takeawayTitle`: optional title for the generated takeaways slide. Defaults to
-  `Takeaways`.
+  `labels.takeaways` (`Takeaways`).
+- `takeawayEyebrow`: optional small label on the takeaways slide. Defaults to
+  `labels.takeawayEyebrow` (`Sintesi` / `Summary`).
 - `takeawayCallout`: optional callout on the generated takeaways slide.
 - `takeawayImage`: optional image path for the generated takeaways slide.
 
@@ -289,8 +297,8 @@ Any `sections` item without `"type": "section"` is rendered as a topic slide:
 ## Image Paths
 
 Image paths can be absolute or relative. Relative paths are resolved from the
-current working directory where the command is run, not from the JSON file
-location.
+deck JSON folder first, then from the current working directory where the
+command is run.
 
 Supported by PptxGenJS and this helper:
 
@@ -299,8 +307,9 @@ Supported by PptxGenJS and this helper:
 - background images: `backgroundImage`, `agendaBackgroundImage`, section/topic
   `backgroundImage`
 
-If an image path is empty or unreadable, the slide is generated without that
-image.
+If an image path is empty, the slide is generated without that image. If it is
+set but cannot be found, the slide is generated without it and `build-deck.js`
+prints `Warning: image not found, skipped: <path>` to stderr.
 
 ## Backgrounds, Watermarks, And Page Numbers
 

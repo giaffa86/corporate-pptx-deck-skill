@@ -94,10 +94,15 @@ By default it writes a local user theme to:
 ~/.codex/corporate-pptx-deck/theme.json
 ```
 
+When the skill is installed under `~/.claude/skills` or `~/.opencode/skills`,
+it writes to that agent home instead (e.g. `~/.claude/corporate-pptx-deck/theme.json`).
+Set `CORPORATE_PPTX_THEME=/path/theme.json` to choose another location.
+
 Theme lookup order:
 
 1. `theme.local.json` in the current project
-2. `~/.codex/corporate-pptx-deck/theme.json`
+2. user theme: `--theme path`, `$CORPORATE_PPTX_THEME`, or the first existing
+   `~/.{codex,claude,opencode}/corporate-pptx-deck/theme.json`
 3. `corporate-pptx-deck/assets/default-theme.json`
 
 Private logos and local themes should not be committed.
@@ -115,15 +120,20 @@ Arguments:
 
 - first argument: input deck JSON
 - second argument: output `.pptx`; defaults to `output.pptx` when omitted
+- `--theme path/to/theme.json`: use this user theme instead of the default lookup
+- `--no-bump`: rebuild without advancing the auto-version ledger
 
-Run the command from the project root that owns the deck, theme, and image
-paths. `build-deck.js` resolves relative paths from the directory where the
-command is launched:
+Run the command from the project root that owns the deck, theme, and deliverable
+paths. `build-deck.js` resolves these from the directory where the command is
+launched:
 
 - input deck JSON path
-- slide/background image paths inside the deck JSON
 - project-local `theme.local.json`
 - output path
+
+Slide/background image paths inside the deck JSON resolve from the deck JSON
+folder first, then from the launch directory. Missing images are skipped with a
+`Warning: image not found, skipped: <path>` message on stderr.
 
 For example, if your deck lives in `presentations`:
 
@@ -223,6 +233,7 @@ corporate-pptx-deck/
   references/theme-schema.md
   scripts/build-deck.js
   scripts/init-theme.js
+  scripts/theme-paths.js
 install.js
 INSTALL.md
 package.json

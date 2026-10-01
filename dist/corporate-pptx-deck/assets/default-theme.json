@@ -22,7 +22,10 @@
     "accent2": "10B981",
     "danger": "B91C1C",
     "amber": "D97706",
-    "white": "FFFFFF"
+    "white": "FFFFFF",
+    "footerText": "9CA3AF",
+    "sectionSubtitle": "D1D5DB",
+    "calloutBg": "FFFFFF"
   },
   "fonts": {
     "head": "Aptos Display",
