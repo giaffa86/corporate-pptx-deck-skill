@@ -417,7 +417,8 @@ function topicSlide(s) {
   addTopBar(slide);
   addTitle(slide, s.title, s.eyebrow);
   addFooter(slide, s.speaker || s.section || "", s);
-  if (s.speaker) slide.addText(s.speaker, { x: 0.68, y: 1.34, w: 5.4, h: 0.28, fontSize: 13.5, bold: true, color: C.accent, margin: 0, fit: "shrink" });
+  // Title box ends at 1.22 (no eyebrow) or 1.46 (eyebrow); keep the speaker line below it.
+  if (s.speaker) slide.addText(s.speaker, { x: 0.68, y: s.eyebrow ? 1.52 : 1.34, w: 5.4, h: 0.28, fontSize: 13.5, bold: true, color: C.accent, margin: 0, fit: "shrink" });
   addBullets(slide, s.bullets, 0.72, 1.85, 5.4, 2.95, s.fontSize || 14.4);
   addCallout(slide, s.callout, 0.72, 5.12, 5.55, 0.86, s.accent || C.accent);
   addImageFrame(slide, s.image, 6.78, 1.32, 5.72, 4.45, s.accent || C.line);
